@@ -1,0 +1,65 @@
+---
+const stats = [
+  {
+    code: "01",
+    label: "УРОЖАЙ",
+    value: "12.4",
+    unit: "КГ",
+    caption: "С одного ведра картофеля за сезон. Метод KU-V1 против 6.2 кг в открытом грунте.",
+  },
+  {
+    code: "02",
+    label: "ВРЕМЯ / НЕДЕЛЯ",
+    value: "1.2",
+    unit: "Ч",
+    caption: "Среднее время на уход. Автополив и сенсоры влажности убирают рутину.",
+  },
+  {
+    code: "03",
+    label: "ЭКОНОМИЯ ВОДЫ",
+    value: "94",
+    unit: "%",
+    caption: "Капельный полив и замкнутый контур гидропоники против поливочного шланга.",
+  },
+  {
+    code: "04",
+    label: "ПЕСТИЦИДОВ",
+    value: "0",
+    unit: "",
+    caption: "В системе. Ноль. Закрытому контуру они просто не нужны.",
+  },
+];
+---
+
+<section class="relative py-24 lg:py-32 border-t border-border">
+  <div class="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-border-strong to-transparent"></div>
+
+  <div class="mx-auto max-w-[1400px] px-6 lg:px-10">
+
+    <div class="flex items-center justify-between mb-16 lg:mb-20 reveal">
+      <div class="flex items-center gap-3">
+        <div class="h-px w-10 bg-accent/60"></div>
+        <span class="label-accent">02 / ЦИФРЫ СЕЗОНА</span>
+      </div>
+      <span class="hidden md:inline label">ЦЕЛЕВЫЕ ПОКАЗАТЕЛИ 2026</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 divide-y md:divide-y-0 md:divide-x divide-border-strong">
+      {stats.map((stat, i) => (
+        <div class="relative py-10 md:py-0 md:px-8 first:md:pl-0 last:md:pr-0 reveal" style={`--reveal-delay: ${i * 120}ms`}>
+          <div class="flex items-center justify-between mb-6 lg:mb-8">
+            <span class="label-accent">№ {stat.code}</span>
+            <span class="label">{stat.label}</span>
+          </div>
+
+          <div class="flex items-baseline gap-2 mb-6">
+            <span class="display text-[72px] lg:text-[96px] text-text tabular-nums">{stat.value}</span>
+            {stat.unit && <span class="font-mono text-[18px] lg:text-[22px] text-accent ml-1">{stat.unit}</span>}
+          </div>
+
+          <p class="text-[14px] leading-[1.55] text-text-dim max-w-[28ch]">{stat.caption}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+</section>

@@ -1,0 +1,85 @@
+---
+const channels = [
+  {
+    code: "№ 01",
+    name: "YouTube",
+    handle: "@kulibin",
+    desc: "Длинные эксперименты, сборки, разборы",
+    status: "СКОРО",
+    primary: true,
+  },
+  {
+    code: "№ 02",
+    name: "Telegram",
+    handle: "@kulibin",
+    desc: "Ежедневный дневник, чертежи, ответы",
+    status: "СКОРО",
+    primary: true,
+  },
+  {
+    code: "№ 03",
+    name: "TikTok",
+    handle: "@kulibin",
+    desc: "Короткие лайфхаки, результаты",
+    status: "СКОРО",
+  },
+  {
+    code: "№ 04",
+    name: "Дзен",
+    handle: "@kulibin",
+    desc: "Текстовые версии экспериментов",
+    status: "СКОРО",
+  },
+];
+---
+
+<section id="channels" class="relative py-24 lg:py-32 border-t border-border">
+
+  <div class="mx-auto max-w-[1400px] px-6 lg:px-10">
+
+    <div class="flex items-end justify-between mb-16 lg:mb-20 reveal">
+      <div>
+        <div class="flex items-center gap-3 mb-4">
+          <div class="h-px w-10 bg-accent/60"></div>
+          <span class="label-accent">07 / ПЛАТФОРМЫ</span>
+        </div>
+        <h2 class="display text-[40px] lg:text-[64px] text-text">
+          Где смотреть<span class="text-accent">.</span>
+        </h2>
+      </div>
+      <span class="hidden md:inline label">4 ПЛАТФОРМЫ · 1 НИК</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-border">
+      {channels.map((ch, i) => (
+        <a
+          href="#"
+          class="group relative bg-bg p-8 lg:p-10 hover:bg-bg-elevated transition-colors reveal"
+          style={`--reveal-delay: ${i * 80}ms`}
+        >
+          <div class="flex items-start justify-between mb-12">
+            <div class="flex items-center gap-3">
+              <span class="signal-dot opacity-60 group-hover:opacity-100"></span>
+              <span class="label-accent">{ch.code}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-mono text-[10px] tracking-[0.2em] uppercase text-text-muted">{ch.status}</span>
+            </div>
+          </div>
+
+          <div class="flex items-end justify-between">
+            <div>
+              <h3 class="display text-[44px] lg:text-[56px] text-text mb-2 group-hover:text-accent transition-colors">
+                {ch.name}
+              </h3>
+              <p class="font-mono text-[13px] text-text-dim mb-3">{ch.handle}</p>
+              <p class="text-[14px] text-text-dim max-w-[36ch]">{ch.desc}</p>
+            </div>
+            <span class="font-mono text-[24px] text-text-muted group-hover:text-accent group-hover:translate-x-1 transition-all">↗</span>
+          </div>
+        </a>
+      ))}
+    </div>
+
+  </div>
+</section>

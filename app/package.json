@@ -1,38 +1,20 @@
 {
-  "name": "app",
-  "version": "0.1.0",
-  "private": true,
+  "name": "kulibin",
+  "type": "module",
+  "version": "0.0.1",
+  "engines": {
+    "node": ">=22.12.0"
+  },
   "scripts": {
-    "dev": "next dev",
-    "devsafe": "rm -rf .next && next dev",
-    "build": "next build",
-    "start": "next start",
-    "lint": "eslint",
-    "generate:types": "payload generate:types",
-    "generate:importmap": "payload generate:importmap",
-    "payload": "payload"
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "astro": "astro"
   },
   "dependencies": {
-    "@payloadcms/db-postgres": "^3.84.1",
-    "@payloadcms/next": "^3.84.1",
-    "@payloadcms/richtext-lexical": "^3.84.1",
+    "@tailwindcss/vite": "^4.2.4",
+    "astro": "^6.1.9",
     "geist": "^1.7.0",
-    "next": "16.2.4",
-    "payload": "^3.84.1",
-    "pg": "^8.20.0",
-    "react": "19.2.4",
-    "react-dom": "19.2.4",
-    "sharp": "^0.34.5"
-  },
-  "devDependencies": {
-    "@tailwindcss/postcss": "^4",
-    "@types/node": "^20",
-    "@types/pg": "^8.20.0",
-    "@types/react": "^19",
-    "@types/react-dom": "^19",
-    "eslint": "^9",
-    "eslint-config-next": "16.2.4",
-    "tailwindcss": "^4",
-    "typescript": "^5"
+    "tailwindcss": "^4.2.4"
   }
 }

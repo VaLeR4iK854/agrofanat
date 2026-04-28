@@ -1,0 +1,53 @@
+---
+import "../styles/global.css";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const {
+  title = "KULIBIN.TV — Дневник домашней нано-фермы",
+  description = "Дневник инженера, который выращивает еду как технологию. Гидропоника, капельный полив, эксперименты, расчёты. Не как бабушка - по протоколу.",
+} = Astro.props;
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content={description} />
+    <meta name="theme-color" content="#0A0E0C" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preload" href="/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <link rel="preload" href="/fonts/GeistMono-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:type" content="website" />
+    <title>{title}</title>
+  </head>
+  <body class="grain">
+    <slot />
+
+    <script is:inline>
+      // Fallback for browsers without scroll-driven CSS animations
+      if (!CSS.supports("animation-timeline: view()")) {
+        const reveals = Array.from(document.querySelectorAll(".reveal"));
+        const check = () => {
+          const vh = window.innerHeight;
+          for (let i = reveals.length - 1; i >= 0; i--) {
+            const r = reveals[i].getBoundingClientRect();
+            if (r.top < vh - 40) {
+              reveals[i].classList.add("is-visible");
+              reveals.splice(i, 1);
+            }
+          }
+        };
+        check();
+        window.addEventListener("scroll", check, { passive: true });
+        window.addEventListener("resize", check, { passive: true });
+      }
+    </script>
+  </body>
+</html>

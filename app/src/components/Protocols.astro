@@ -1,0 +1,75 @@
+---
+const protocols = [
+  {
+    code: "PR-001",
+    title: "Эксперименты",
+    desc: "A/B тесты урожайности. 4 ведра, 4 метода, замеры через 90 дней. Графики, расчёты, выводы без воды.",
+    items: ["Картофель в вёдрах vs грунт", "Гидропоника vs аэропоника", "Расход воды по методам"],
+  },
+  {
+    code: "PR-002",
+    title: "DIY-системы",
+    desc: "Сборки от нуля. Гидропоника, капельный полив, аэропоника, мини-теплица. С ценой каждой детали и ссылками.",
+    items: ["NFT-установка для клубники", "Капельный полив для балкона", "Контроллер влажности на ESP32"],
+  },
+  {
+    code: "PR-003",
+    title: "Расчёты",
+    desc: "Калькуляторы окупаемости и потребления. Прежде чем сажать - считаем. Сколько метров, сколько часов, сколько кг.",
+    items: ["Сколько вёдер нужно семье на год", "Окупаемость гидропоники", "Площадь для самообеспечения"],
+  },
+  {
+    code: "PR-004",
+    title: "Дневник",
+    desc: "Сезонная хроника. Что посеяли, что прижилось, что погибло, что переделали. Честно, без глянца.",
+    items: ["Лог сезона 2026", "Разборы факапов", "Ответы подписчикам"],
+  },
+];
+---
+
+<section id="protocols" class="relative py-24 lg:py-32 border-t border-border">
+
+  <div class="mx-auto max-w-[1400px] px-6 lg:px-10">
+
+    <div class="flex items-center justify-between mb-16 lg:mb-20 reveal">
+      <div class="flex items-center gap-3">
+        <div class="h-px w-10 bg-accent/60"></div>
+        <span class="label-accent">04 / РУБРИКИ</span>
+      </div>
+      <span class="hidden md:inline label">4 НАПРАВЛЕНИЯ ДНЕВНИКА</span>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-border">
+      {protocols.map((p, i) => (
+        <div
+          class="group relative bg-bg p-8 lg:p-10 hover:bg-bg-elevated transition-colors duration-500 reveal"
+          style={`--reveal-delay: ${i * 80}ms`}
+        >
+          <div class="absolute top-4 left-4 w-2 h-2 border-l border-t border-accent/40 group-hover:border-accent transition-colors"></div>
+          <div class="absolute top-4 right-4 w-2 h-2 border-r border-t border-accent/40 group-hover:border-accent transition-colors"></div>
+          <div class="absolute bottom-4 left-4 w-2 h-2 border-l border-b border-accent/40 group-hover:border-accent transition-colors"></div>
+          <div class="absolute bottom-4 right-4 w-2 h-2 border-r border-b border-accent/40 group-hover:border-accent transition-colors"></div>
+
+          <div class="flex items-center justify-between mb-8">
+            <span class="label-accent">{p.code}</span>
+            <span class="text-text-muted group-hover:text-accent transition-colors text-[14px]">→</span>
+          </div>
+
+          <h3 class="display text-[36px] lg:text-[44px] mb-4 text-text">{p.title}</h3>
+
+          <p class="text-[15px] leading-[1.6] text-text-dim max-w-[44ch] mb-8">{p.desc}</p>
+
+          <ul class="space-y-2 font-mono text-[12px] tracking-[0.05em] text-text-dim">
+            {p.items.map((item, j) => (
+              <li class="flex items-start gap-3">
+                <span class="text-accent mt-[4px] text-[10px]">▸</span>
+                <span>{item}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </div>
+
+  </div>
+</section>

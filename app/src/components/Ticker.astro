@@ -1,0 +1,29 @@
+---
+const items = [
+  "ДНЕВНИК НАНО-ФЕРМЫ",
+  "УРОЖАЙ +94%",
+  "ВРЕМЯ 1.2 Ч/НЕД",
+  "ВОДЫ −94%",
+  "БЕЗ ПЕСТИЦИДОВ",
+  "ОТКРЫТЫЙ ПРОТОКОЛ",
+  "СЕЗОН 2026",
+  "КАРТОФЕЛЬ · КЛУБНИКА",
+  "ГИДРОПОНИКА · КАПЕЛЬНЫЙ ПОЛИВ",
+  "ON AIR",
+];
+---
+
+<div class="relative border-y border-border bg-bg-elevated/40 overflow-hidden">
+  <div class="flex ticker-track whitespace-nowrap py-4 font-mono text-[11px] tracking-[0.22em] uppercase text-text-dim">
+    {[...Array(2)].map(() => (
+      <div class="flex shrink-0 items-center">
+        {items.map((item) => (
+          <span class="flex items-center px-6">
+            <span class="signal-dot !w-[4px] !h-[4px] mr-3 opacity-70"></span>
+            {item}
+          </span>
+        ))}
+      </div>
+    ))}
+  </div>
+</div>
