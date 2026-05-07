@@ -1,12 +1,13 @@
-# kulibin.tv
+# Агрофанат
 
 Дневник домашней нано-фермы. Гидропоника, капельный полив, эксперименты, расчёты.
 
 ## Структура
 
 ```
-kulibin/
-└── app/        ← Astro лендинг
+.
+├── app/                       Astro лендинг
+└── .github/workflows/         деплой на GitHub Pages
 ```
 
 ## Стек
@@ -14,3 +15,15 @@ kulibin/
 - Astro 6
 - Tailwind 4
 - Node 22
+
+## Локальный запуск
+
+```
+cd app
+npm install
+npm run dev
+```
+
+## Деплой
+
+Любой пуш в `main` запускает `.github/workflows/deploy.yml` - билд `app/` и публикация на GitHub Pages по адресу `agrofanat.ru` (через `app/public/CNAME`).

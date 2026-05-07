@@ -1,7 +1,8 @@
 ---
+const dzenUrl = "https://dzen.ru/id/5d597768a2d6ed00ac2cd607";
 ---
 
-<section class="relative py-32 lg:py-44 border-t border-border overflow-hidden">
+<section id="subscribe" class="relative py-32 lg:py-44 border-t border-border overflow-hidden">
 
   <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] rounded-full bg-accent/5 blur-[140px] pointer-events-none"></div>
 
@@ -13,39 +14,36 @@
 
       <div class="flex items-center justify-center gap-3 mb-12 reveal">
         <span class="signal-dot"></span>
-        <span class="label-accent">СТАРТУЕМ ВЕСНОЙ 2026</span>
+        <span class="label-accent">ПОДПИСКА НА ДНЕВНИК</span>
         <span class="signal-dot"></span>
       </div>
 
       <h2 class="display text-[clamp(40px,7vw,112px)] mb-12 reveal" style="--reveal-delay: 100ms">
-        <span class="text-text">Будь первым, кто</span>
+        <span class="text-text">Не пропускай</span>
         <br />
-        <span class="text-accent">увидит первый выпуск.</span>
+        <span class="text-accent">новые протоколы.</span>
       </h2>
 
       <p class="text-[18px] lg:text-[20px] leading-[1.5] text-text-dim max-w-[52ch] mx-auto mb-16 reveal" style="--reveal-delay: 200ms">
-        Пиши почту — пришлю одно письмо, когда выйдет первый эксперимент.
-        Никакого спама, никаких рекламных рассылок.
+        Подписывайся на канал в Дзене - буду присылать новые записи дневника, эксперименты и расчёты.
+        Без рекламы, без воды.
       </p>
 
-      <form class="flex flex-col sm:flex-row gap-3 max-w-[500px] mx-auto reveal" style="--reveal-delay: 300ms">
-        <input
-          type="email"
-          required
-          placeholder="your@email.com"
-          class="flex-1 h-12 px-4 bg-bg-elevated border border-border-strong text-text placeholder:text-text-muted font-mono text-[14px] focus:outline-none focus:border-accent transition-colors"
-        />
-        <button
-          type="submit"
-          class="group inline-flex items-center justify-center gap-2 h-12 px-6 bg-accent text-bg font-mono text-[12px] tracking-[0.18em] uppercase font-medium hover:bg-signal transition-colors"
+      <div class="flex justify-center reveal" style="--reveal-delay: 300ms">
+        <a
+          href={dzenUrl}
+          rel="me noopener"
+          target="_blank"
+          class="group inline-flex items-center gap-3 bg-accent text-bg px-10 h-14 font-mono text-[13px] tracking-[0.18em] uppercase font-medium hover:bg-signal transition-colors"
         >
-          Подписаться
-          <span class="transition-transform group-hover:translate-x-1">→</span>
-        </button>
-      </form>
+          <span class="signal-dot !bg-bg !shadow-none"></span>
+          Подписаться в Дзене
+          <span class="ml-1 transition-transform group-hover:translate-x-1">→</span>
+        </a>
+      </div>
 
-      <p class="mt-6 font-mono text-[11px] tracking-[0.18em] uppercase text-text-muted reveal" style="--reveal-delay: 400ms">
-        Или сразу в Telegram — там ежедневный дневник
+      <p class="mt-12 font-mono text-[11px] tracking-[0.18em] uppercase text-text-muted reveal" style="--reveal-delay: 400ms">
+        остальные каналы открою позже
       </p>
 
     </div>

@@ -1,5 +1,5 @@
 {
-  "name": "kulibin",
+  "name": "agrofanat",
   "type": "module",
   "version": "0.0.1",
   "engines": {
@@ -12,6 +12,7 @@
     "astro": "astro"
   },
   "dependencies": {
+    "@astrojs/sitemap": "^3.7.2",
     "@tailwindcss/vite": "^4.2.4",
     "astro": "^6.1.9",
     "geist": "^1.7.0",

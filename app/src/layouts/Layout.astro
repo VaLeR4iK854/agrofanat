@@ -1,15 +1,46 @@
 ---
 import "../styles/global.css";
+import { ClientRouter } from "astro:transitions";
 
 interface Props {
   title?: string;
   description?: string;
+  ogImage?: string;
+  ogType?: "website" | "article";
+  noindex?: boolean;
 }
 
 const {
-  title = "KULIBIN.TV — Дневник домашней нано-фермы",
+  title = "АГРОФАНАТ - дневник домашней нано-фермы",
   description = "Дневник инженера, который выращивает еду как технологию. Гидропоника, капельный полив, эксперименты, расчёты. Не как бабушка - по протоколу.",
+  ogImage = "/og-default.png",
+  ogType = "website",
+  noindex = false,
 } = Astro.props;
+
+const siteUrl = Astro.site?.toString().replace(/\/$/, "") ?? "https://agrofanat.ru";
+const canonical = new URL(Astro.url.pathname, siteUrl).toString().replace(/\/$/, "") || siteUrl;
+const ogImageAbsolute = ogImage.startsWith("http") ? ogImage : `${siteUrl}${ogImage}`;
+
+const orgJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  name: "Агрофанат",
+  url: siteUrl,
+  logo: `${siteUrl}/favicon.svg`,
+  sameAs: [
+    "https://dzen.ru/id/5d597768a2d6ed00ac2cd607",
+  ],
+};
+
+const websiteJsonLd = {
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  name: "Агрофанат",
+  url: siteUrl,
+  inLanguage: "ru",
+  description: "Открытый дневник домашней нано-фермы. Гидропоника, капельный полив, эксперименты, расчёты.",
+};
 ---
 
 <!doctype html>
@@ -19,34 +50,59 @@ const {
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="description" content={description} />
     <meta name="theme-color" content="#0A0E0C" />
+    {noindex && <meta name="robots" content="noindex, nofollow" />}
+    {!noindex && <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />}
+
+    <link rel="canonical" href={canonical} />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
     <link rel="preload" href="/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
     <link rel="preload" href="/fonts/GeistMono-Variable.woff2" as="font" type="font/woff2" crossorigin />
+
+    <meta property="og:site_name" content="Агрофанат" />
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
-    <meta property="og:type" content="website" />
+    <meta property="og:type" content={ogType} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImageAbsolute} />
+    <meta property="og:locale" content="ru_RU" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageAbsolute} />
+
     <title>{title}</title>
+
+    <script type="application/ld+json" set:html={JSON.stringify(orgJsonLd)} />
+    <script type="application/ld+json" set:html={JSON.stringify(websiteJsonLd)} />
+
+    <ClientRouter />
   </head>
   <body class="grain">
     <slot />
 
     <script is:inline>
-      // Fallback for browsers without scroll-driven CSS animations
       if (!CSS.supports("animation-timeline: view()")) {
-        const reveals = Array.from(document.querySelectorAll(".reveal"));
-        const check = () => {
-          const vh = window.innerHeight;
-          for (let i = reveals.length - 1; i >= 0; i--) {
-            const r = reveals[i].getBoundingClientRect();
-            if (r.top < vh - 40) {
-              reveals[i].classList.add("is-visible");
-              reveals.splice(i, 1);
+        const apply = () => {
+          const reveals = Array.from(document.querySelectorAll(".reveal"));
+          const check = () => {
+            const vh = window.innerHeight;
+            for (let i = reveals.length - 1; i >= 0; i--) {
+              const r = reveals[i].getBoundingClientRect();
+              if (r.top < vh - 40) {
+                reveals[i].classList.add("is-visible");
+                reveals.splice(i, 1);
+              }
             }
-          }
+          };
+          check();
+          window.addEventListener("scroll", check, { passive: true });
+          window.addEventListener("resize", check, { passive: true });
         };
-        check();
-        window.addEventListener("scroll", check, { passive: true });
-        window.addEventListener("resize", check, { passive: true });
+        apply();
+        document.addEventListener("astro:page-load", apply);
       }
     </script>
   </body>
