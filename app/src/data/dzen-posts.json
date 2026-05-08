@@ -1,58 +1,65 @@
 {
   "channel": {
     "id": "5d597768a2d6ed00ac2cd607",
+    "slug": "agrofanat",
     "title": "АГРОФАНАТ",
-    "url": "https://dzen.ru/id/5d597768a2d6ed00ac2cd607"
+    "url": "https://dzen.ru/agrofanat"
   },
-  "syncedAt": "2026-05-08T01:04:08.369Z",
+  "syncedAt": "2026-05-08T14:13:54.543Z",
   "posts": [
+    {
+      "url": "https://dzen.ru/b/af2WfbeDViGzTR0s",
+      "title": "Прошло 28 дней с момента посадки 🥔 картофеля в ведро.",
+      "description": "30 апреля 2026 года кусты заметно выросли и очень заметна разница в сортах.",
+      "image": "/dzen-images/227622b566e2e2a3.jpg",
+      "publishedAt": "2026-05-08T07:53:33.000Z",
+      "readingMinutes": 1,
+      "remoteImage": "https://avatars.dzeninfra.ru/get-zen_brief/271828/pub_69fd967db7835621b34d1d2c_69fd9723b7835621b34dec0d/scale_720"
+    },
     {
       "url": "https://dzen.ru/b/afxziZ5lPXeD_cWt",
       "title": "👀 Первое окучивание картофеля я произвёл 26 апреля 2026 года",
       "description": "это получается, через 36 дней после посадки в открытый грунт.",
-      "image": "https://avatars.dzeninfra.ru/get-zen_brief/271828/pub_69fc73899e653d7783fdc5ad_69fcd939dec3ab4f21d80b00/scale_720",
+      "image": "/dzen-images/d841687bf7e166cb.jpg",
       "publishedAt": "2026-05-07T11:12:09.000Z",
-      "readingMinutes": 1
+      "readingMinutes": 1,
+      "remoteImage": "https://avatars.dzeninfra.ru/get-zen_brief/271828/pub_69fc73899e653d7783fdc5ad_69fcd939dec3ab4f21d80b00/scale_720"
     },
     {
       "url": "https://dzen.ru/b/afsy5O8_N2Itnjwe",
       "title": "Прошло 34 дня (24 апреля 2026 года) с момента посадки картофеля в грунт.",
       "description": "Всхожесть не сказать, что дружная, но кусты взошли все.",
-      "image": "https://avatars.dzeninfra.ru/get-zen_brief/271828/pub_69fb32e4ef3f37622d9e3c1e_69fc71c19e653d7783fb0596/scale_720",
+      "image": "/dzen-images/d8261e66c6e83912.jpg",
       "publishedAt": "2026-05-06T12:24:04.000Z",
-      "readingMinutes": 1
+      "readingMinutes": 1,
+      "remoteImage": "https://avatars.dzeninfra.ru/get-zen_brief/271828/pub_69fb32e4ef3f37622d9e3c1e_69fc71c19e653d7783fb0596/scale_720"
     },
     {
       "url": "https://dzen.ru/b/afsapPrI7SJ8Bvtz",
       "title": "Через 22 дня после посадки картофеля в ведре",
       "description": "ростки значительно выросли и приобрели полноценную форму, только маленькие.",
-      "image": "https://avatars.dzeninfra.ru/get-zen_brief/271828/pub_69fb1aa4fac8ed227c06fb73_69fb1b25ef3f37622d7974d1/scale_720",
+      "image": "/dzen-images/258d49942b64e24e.jpg",
       "publishedAt": "2026-05-06T10:40:36.000Z",
-      "readingMinutes": 1
+      "readingMinutes": 1,
+      "remoteImage": "https://avatars.dzeninfra.ru/get-zen_brief/271828/pub_69fb1aa4fac8ed227c06fb73_69fb1b25ef3f37622d7974d1/scale_720"
     },
     {
       "url": "https://dzen.ru/a/afpAl0n31mdw3rXq",
       "title": "🥔 Через две недели после посадки картофеля в ведрах",
       "description": "Вёдра стоят на улице и несмотря на прохладную погоду всходы чувствуют себя замечательно. И с этого дня я начал уже применять полив. В вёдрах применяю покупной универсальный питательный почвогрунт. В составе содержит торф, комплексное удобрение, известняковые материалы и рыхлители....",
-      "image": "https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_69fa409749f7d66770deb5ea_69fa411178b10057d4e94a24/smart_crop_516x290",
+      "image": "/dzen-images/2dae3753728bf8f3.jpg",
       "publishedAt": "2026-05-05T19:10:15.000Z",
-      "readingMinutes": 1
+      "readingMinutes": 1,
+      "remoteImage": "https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_69fa409749f7d66770deb5ea_69fa411178b10057d4e94a24/smart_crop_516x290"
     },
     {
       "url": "https://dzen.ru/a/afkGHvzfhA6ddMlj",
       "title": "Сажаем картофель в грунт",
       "description": "Под картошку выделил около 0.5 сотки, в моём случае, это 200 кустов. Но, учитывая опыт прошлого года, когда у меня не хватило земли для окучивания и некоторые клубни вылазили наружу, а рядки были нарезаны через каждые 60 сантиметров...",
-      "image": "https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_69f9061efcdf840e9d74c963_69f9065ea4a2ae409a86ee12/smart_crop_516x290",
+      "image": "/dzen-images/b03adc9267234aab.jpg",
       "publishedAt": "2026-05-04T20:48:30.000Z",
-      "readingMinutes": 1
-    },
-    {
-      "url": "https://dzen.ru/a/afkEcSRkumx4J354",
-      "title": "Выращиваем картофель в ведре",
-      "description": "Картошку в грунте сажал и опыт имеется, а вот выращивать в ведре буду первый раз. Для этого закупил два строительных ведра ёмкостью на 16 литров. Честно, я совершенно не уверен хватит ли места картошке в этом объёме, но важен эксперимент. Верхний диаметр ведра равен 31 сантиметру, а глубина ведра составляет 27 сантиметров...",
-      "image": "https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_69f904712464ba6c78277e78_69f905167ef4467d1a180cea/smart_crop_516x290",
-      "publishedAt": "2026-05-04T20:41:21.000Z",
-      "readingMinutes": 1
+      "readingMinutes": 1,
+      "remoteImage": "https://avatars.dzeninfra.ru/get-zen_doc/271828/pub_69f9061efcdf840e9d74c963_69f9065ea4a2ae409a86ee12/smart_crop_516x290"
     }
   ]
 }

@@ -1,16 +1,23 @@
 #!/usr/bin/env node
-import { writeFile, readFile } from "node:fs/promises";
-import { resolve, dirname } from "node:path";
+import { writeFile, readFile, mkdir, readdir, unlink } from "node:fs/promises";
+import { createHash } from "node:crypto";
+import { resolve, dirname, extname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const CHANNEL_ID = process.env.DZEN_CHANNEL_ID ?? "5d597768a2d6ed00ac2cd607";
+const CHANNEL_SLUG = process.env.DZEN_CHANNEL_SLUG ?? "agrofanat";
 const LIMIT = Number(process.env.DZEN_POSTS_LIMIT ?? 6);
 const FEED_UA = "Mozilla/5.0 (compatible; AgrofanatBot/1.0; +https://agrofanat.ru)";
 const OG_UA = "Mozilla/5.0 (compatible; Twitterbot/1.0)";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = resolve(__dirname, "../src/data/dzen-posts.json");
-const CHANNEL_URL = `https://dzen.ru/id/${CHANNEL_ID}`;
+const IMAGE_DIR = resolve(__dirname, "../public/dzen-images");
+const IMAGE_PUBLIC_PREFIX = "/dzen-images";
+// канал фетчится по внутреннему /id/<hash> URL - там стабильный JSON-LD.
+// Публичная ссылка для пользователей - короткая /agrofanat (через vanity)
+const CHANNEL_FETCH_URL = `https://dzen.ru/id/${CHANNEL_ID}`;
+const CHANNEL_PUBLIC_URL = `https://dzen.ru/${CHANNEL_SLUG}`;
 
 const META_REGEX = /<meta\s+(?:property|name)=["'](og:[^"']+|twitter:[^"']+|article:[^"']+)["']\s+content=["']([^"']*)["']\s*\/?>/gi;
 const JSON_LD_REGEX = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
@@ -86,6 +93,44 @@ async function fetchText(url, ua) {
   return res.text();
 }
 
+// скачиваем обложки локально в /public/dzen-images/, чтобы блокировщики
+// рекламы не резали avatars.dzeninfra.ru (он в стандартных RU-фильтрах).
+// Возвращаем публичный путь, под которым картинка будет лежать на сайте,
+// либо null - тогда компонент покажет fallback-плейсхолдер.
+async function downloadImage(remoteUrl) {
+  if (!remoteUrl || !/^https?:\/\//i.test(remoteUrl)) return null;
+  const hash = createHash("sha1").update(remoteUrl).digest("hex").slice(0, 16);
+  const ext = (extname(new URL(remoteUrl).pathname) || ".jpg").toLowerCase().replace(/[^.\w]/g, "") || ".jpg";
+  const filename = `${hash}${ext}`;
+  const localPath = resolve(IMAGE_DIR, filename);
+  try {
+    const res = await fetch(remoteUrl, {
+      headers: { "user-agent": OG_UA, accept: "image/*", referer: "https://dzen.ru/" },
+      redirect: "follow",
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const buf = Buffer.from(await res.arrayBuffer());
+    if (buf.length < 512) throw new Error(`too small (${buf.length}b)`);
+    await writeFile(localPath, buf);
+    return `${IMAGE_PUBLIC_PREFIX}/${filename}`;
+  } catch (err) {
+    console.error(`[sync-dzen] image download failed for ${remoteUrl}: ${err.message}`);
+    return null;
+  }
+}
+
+async function pruneOldImages(keep) {
+  try {
+    const files = await readdir(IMAGE_DIR);
+    const keepSet = new Set([...keep].map((p) => p.split("/").pop()));
+    await Promise.all(
+      files
+        .filter((f) => !keepSet.has(f) && !f.startsWith("."))
+        .map((f) => unlink(resolve(IMAGE_DIR, f)).catch(() => {}))
+    );
+  } catch {}
+}
+
 function extractItemList(channelHtml) {
   const byUrl = new Map();
   for (const match of channelHtml.matchAll(JSON_LD_REGEX)) {
@@ -142,9 +187,11 @@ async function enrichBrief(url, briefImage) {
 }
 
 async function main() {
+  await mkdir(IMAGE_DIR, { recursive: true });
+
   let channelHtml;
   try {
-    channelHtml = await fetchText(CHANNEL_URL, OG_UA);
+    channelHtml = await fetchText(CHANNEL_FETCH_URL, OG_UA);
   } catch (err) {
     console.error("[sync-dzen] channel page fetch failed:", err.message);
     const prev = await loadPrevious();
@@ -199,10 +246,25 @@ async function main() {
 
   ok.sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
 
+  const top = ok.slice(0, LIMIT);
+
+  // скачиваем обложки только для публикуемых постов и подменяем в JSON
+  // абсолютные dzen-URL на локальные пути - адблок не зарубит и хотлинк-защита
+  // дзен-CDN не сорвёт загрузку у части аудитории
+  const localised = await Promise.all(
+    top.map(async (post) => {
+      if (!post.image) return post;
+      const local = await downloadImage(post.image);
+      return local ? { ...post, image: local, remoteImage: post.image } : post;
+    })
+  );
+
+  await pruneOldImages(localised.map((p) => p.image).filter((u) => u && u.startsWith(IMAGE_PUBLIC_PREFIX)));
+
   const payload = {
-    channel: { id: CHANNEL_ID, title: channelTitle, url: CHANNEL_URL },
+    channel: { id: CHANNEL_ID, slug: CHANNEL_SLUG, title: channelTitle, url: CHANNEL_PUBLIC_URL },
     syncedAt: new Date().toISOString(),
-    posts: ok.slice(0, LIMIT),
+    posts: localised,
   };
 
   await writeFile(OUTPUT, JSON.stringify(payload, null, 2) + "\n", "utf8");
