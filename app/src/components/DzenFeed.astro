@@ -88,7 +88,9 @@ function formatDate(iso: string | null) {
                 <h3 class="display text-[24px] lg:text-[28px] text-text mb-3 leading-[1.1] group-hover:text-accent transition-colors">
                   {p.title}
                 </h3>
-                <p class="text-[14px] leading-[1.5] text-text-dim line-clamp-3 mb-6">{p.description}</p>
+                {p.description && (
+                  <p class="text-[14px] leading-[1.5] text-text-dim line-clamp-3 mb-6">{p.description}</p>
+                )}
                 <span class="mt-auto inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase text-accent group-hover:translate-x-1 transition-transform">
                   Открыть в Дзене <span>↗</span>
                 </span>
