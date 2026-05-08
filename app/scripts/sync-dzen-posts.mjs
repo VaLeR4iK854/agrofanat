@@ -63,12 +63,14 @@ function firstSentence(text, maxLen = 120) {
   return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim() + "…";
 }
 
-function splitFirstSentence(text) {
-  const trimmed = (text || "").trim();
-  if (!trimmed) return { first: "", rest: "" };
-  const m = trimmed.match(/^([\s\S]+?[.!?])\s+([\s\S]+)$/);
-  if (!m) return { first: trimmed, rest: "" };
-  return { first: m[1].trim(), rest: m[2].trim() };
+function spoilerCut(text, maxLen = 70) {
+  if (!text) return "";
+  const trimmed = text.trim();
+  if (trimmed.length <= maxLen) return trimmed;
+  const cut = trimmed.slice(0, maxLen);
+  const lastSpace = cut.lastIndexOf(" ");
+  const safeCut = lastSpace > 30 ? cut.slice(0, lastSpace) : cut;
+  return safeCut.replace(/[\s,;:!?.\-—–]+$/u, "") + "…";
 }
 
 async function fetchText(url, ua) {
@@ -113,20 +115,12 @@ async function enrichPost(url) {
   let title;
   let description;
   if (isBrief) {
-    // brief посты: og:title = имя канала, реальный текст только в og:description.
-    // первое предложение становится заголовком, остальное - описанием. если первое
-    // предложение слишком длинное - оно усекается под заголовок, описание пустое
-    // чтобы не показывать одно и то же дважды.
-    const { first, rest } = splitFirstSentence(rawDescription);
-    if (first.length <= 110) {
-      title = first;
-      description = rest;
-    } else {
-      title = firstSentence(rawDescription, 110);
-      description = "";
-    }
+    // brief посты: og:title = имя канала. делаем заголовок-спойлер из первых
+    // ~70 символов текста (обрезаем по слову), описание содержит полный текст.
+    title = spoilerCut(rawDescription, 70);
+    description = rawDescription;
   } else {
-    title = (og["og:title"] || "").trim() || firstSentence(rawDescription, 110);
+    title = (og["og:title"] || "").trim() || spoilerCut(rawDescription, 70);
     description = firstSentence(rawDescription, 240);
   }
 
