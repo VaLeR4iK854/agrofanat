@@ -9,7 +9,8 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "sync:dzen": "node scripts/sync-dzen-posts.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",

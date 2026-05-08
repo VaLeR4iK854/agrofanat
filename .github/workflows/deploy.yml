@@ -1,8 +1,11 @@
-name: Deploy Astro to GitHub Pages
+name: Sync Dzen and deploy to Pages
 
 on:
   push:
     branches: [main]
+  schedule:
+    # каждые 6 часов - подхватывает новые посты в Дзене
+    - cron: "17 */6 * * *"
   workflow_dispatch:
 
 permissions:
@@ -29,6 +32,11 @@ jobs:
       - name: Install dependencies
         working-directory: app
         run: npm ci --no-audit --no-fund
+
+      - name: Sync Dzen posts (best effort - falls back to committed snapshot)
+        working-directory: app
+        run: npm run sync:dzen
+        continue-on-error: true
 
       - name: Build site
         working-directory: app

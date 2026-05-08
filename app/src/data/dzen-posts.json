@@ -1,0 +1,40 @@
+{
+  "channel": {
+    "id": "5d597768a2d6ed00ac2cd607",
+    "title": "АГРОФАНАТ",
+    "url": "https://dzen.ru/id/5d597768a2d6ed00ac2cd607"
+  },
+  "syncedAt": "2026-05-08T00:10:54.733Z",
+  "posts": [
+    {
+      "id": "69fa409749f7d66770deb5ea",
+      "url": "https://dzen.ru/a/afpAl0n31mdw3rXq",
+      "title": "🥔 Через две недели после посадки картофеля в ведрах",
+      "description": "Вёдра стоят на улице и несмотря на прохладную погоду всходы чувствуют себя замечательно. И с этого дня я начал уже применять полив.",
+      "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69fa409749f7d66770deb5ea_69fcdc1562d0571e32437dc2/optimize",
+      "publishedAt": "2026-05-05T19:10:15.000Z",
+      "readingMinutes": 1,
+      "views": 5
+    },
+    {
+      "id": "69f9061efcdf840e9d74c963",
+      "url": "https://dzen.ru/a/afkGHvzfhA6ddMlj",
+      "title": "Сажаем картофель в грунт",
+      "description": "Под картошку выделил около 0.5 сотки, в моём случае, это 200 кустов.",
+      "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69f9061efcdf840e9d74c963_69fcdc0762d0571e32437dbc/optimize",
+      "publishedAt": "2026-05-04T20:48:30.000Z",
+      "readingMinutes": 1,
+      "views": 7
+    },
+    {
+      "id": "69f904712464ba6c78277e78",
+      "url": "https://dzen.ru/a/afkEcSRkumx4J354",
+      "title": "Выращиваем картофель в ведре",
+      "description": "Картошку в грунте сажал и опыт имеется, а вот выращивать в ведре буду первый раз. Для этого закупил два строительных ведра ёмкостью на 16 литров.",
+      "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69f904712464ba6c78277e78_69fcdc0a62d0571e32437dbd/optimize",
+      "publishedAt": "2026-05-04T20:41:21.000Z",
+      "readingMinutes": 1,
+      "views": 9
+    }
+  ]
+}
