@@ -14,6 +14,7 @@ const CHANNEL_URL = `https://dzen.ru/id/${CHANNEL_ID}`;
 
 const META_REGEX = /<meta\s+(?:property|name)=["'](og:[^"']+|twitter:[^"']+|article:[^"']+)["']\s+content=["']([^"']*)["']\s*\/?>/gi;
 const JSON_LD_REGEX = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
+const URL_IMAGE_REGEX = /"url":"(https:\/\/dzen\.ru\/[ab]\/[^"]+)","image":\{(?:[^{}]|\{[^{}]*\})*"link":"([^"]+)"/g;
 
 function parseOgMeta(html) {
   const meta = {};
@@ -34,7 +35,7 @@ function decodeHtmlEntities(s) {
     .replace(/&#x27;/g, "'");
 }
 
-function objectIdFromImageUrl(url) {
+function objectIdFromUrl(url) {
   if (!url) return null;
   const m = url.match(/pub_([a-f0-9]{24})_/i);
   return m ? m[1] : null;
@@ -52,25 +53,31 @@ function stripChannelPrefix(raw) {
   return raw.replace(/^(?:Статья|Пост|Видео)\s+автора[^:]*?в\s+Дзене[^:]*:\s*/u, "").trim();
 }
 
-function firstSentence(text, maxLen = 120) {
-  if (!text) return "";
-  const trimmed = text.trim();
-  const dotIdx = trimmed.search(/[.!?]\s/);
-  if (dotIdx > 0 && dotIdx < maxLen + 40) return trimmed.slice(0, dotIdx + 1).trim();
-  if (trimmed.length <= maxLen) return trimmed;
-  const cut = trimmed.slice(0, maxLen);
-  const lastSpace = cut.lastIndexOf(" ");
-  return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim() + "…";
-}
+// разбиваем текст на заголовок + описание по первому знаку препинания после
+// разумного минимума - получаем естественную "паузу" вместо обрыва по символам.
+function splitTitleDescription(text) {
+  const trimmed = (text || "").trim();
+  if (!trimmed) return { title: "", description: "" };
 
-function spoilerCut(text, maxLen = 70) {
-  if (!text) return "";
-  const trimmed = text.trim();
-  if (trimmed.length <= maxLen) return trimmed;
-  const cut = trimmed.slice(0, maxLen);
+  // первая точка / восклицание / вопрос с пробелом - граница предложения
+  const sentenceBreak = trimmed.match(/^([\s\S]{20,200}?[.!?])\s+([\s\S]+)$/u);
+  if (sentenceBreak) {
+    return { title: sentenceBreak[1].trim(), description: sentenceBreak[2].trim() };
+  }
+
+  // вторичные разделители: запятая, закрывающая скобка, тире
+  const softBreak = trimmed.match(/^([\s\S]{30,90}?[,)\-—–])\s+([\s\S]+)$/u);
+  if (softBreak) {
+    const head = softBreak[1].trim().replace(/[,;:\-—–]+$/u, "").trim();
+    return { title: head, description: softBreak[2].trim() };
+  }
+
+  // нет естественной границы - режем по слову на ~80 знаках
+  if (trimmed.length <= 80) return { title: trimmed, description: "" };
+  const cut = trimmed.slice(0, 80);
   const lastSpace = cut.lastIndexOf(" ");
-  const safeCut = lastSpace > 30 ? cut.slice(0, lastSpace) : cut;
-  return safeCut.replace(/[\s,;:!?.\-—–]+$/u, "") + "…";
+  const head = (lastSpace > 30 ? cut.slice(0, lastSpace) : cut).trim();
+  return { title: head, description: trimmed.slice(head.length).trim() };
 }
 
 async function fetchText(url, ua) {
@@ -79,65 +86,56 @@ async function fetchText(url, ua) {
   return res.text();
 }
 
-function extractChannelPostUrls(channelHtml) {
-  const urls = new Set();
+function extractItemList(channelHtml) {
+  const byUrl = new Map();
   for (const match of channelHtml.matchAll(JSON_LD_REGEX)) {
     let block;
     try { block = JSON.parse(match[1]); } catch { continue; }
     if (block?.["@type"] !== "ItemList" || !Array.isArray(block.itemListElement)) continue;
-    for (const el of block.itemListElement) {
-      const item = el?.item ?? el;
+    for (const raw of block.itemListElement) {
+      const item = raw?.item && typeof raw.item === "object" ? raw.item : raw;
       const url = item?.url;
-      if (typeof url === "string" && /^https:\/\/dzen\.ru\/[ab]\/[^/?#]+$/.test(url)) {
-        urls.add(url);
-      }
+      if (typeof url !== "string" || !/^https:\/\/dzen\.ru\/[ab]\/[^/?#]+$/.test(url)) continue;
+      const existing = byUrl.get(url) ?? {};
+      const merged = {
+        url,
+        name: existing.name || item.name || "",
+        description: existing.description || item.description || "",
+        image: existing.image || (typeof item.image === "string" ? item.image : item.image?.url) || "",
+        datePublished: existing.datePublished || item.datePublished || "",
+      };
+      byUrl.set(url, merged);
     }
   }
-  return [...urls];
+  return [...byUrl.values()];
 }
 
-async function loadPrevious() {
-  try {
-    const raw = await readFile(OUTPUT, "utf8");
-    return JSON.parse(raw);
-  } catch {
-    return null;
+function extractBriefImageMap(channelHtml) {
+  const map = new Map();
+  for (const m of channelHtml.matchAll(URL_IMAGE_REGEX)) {
+    if (!map.has(m[1])) map.set(m[1], m[2]);
   }
+  return map;
 }
 
-async function enrichPost(url) {
+async function enrichBrief(url, briefImage) {
   const html = await fetchText(url, OG_UA);
   const og = parseOgMeta(html);
-  const image = og["og:image"] || null;
-  const rawDescription = stripChannelPrefix(og["og:description"] || "");
-  const isBrief = /\/b\//.test(url);
-
-  let title;
-  let description;
-  if (isBrief) {
-    // brief в Дзене - формат коротких заметок без заголовка, весь пост это
-    // og:description целиком. рендерим текст без h3.
-    title = "";
-    description = rawDescription;
-  } else {
-    title = (og["og:title"] || "").trim();
-    description = firstSentence(rawDescription, 240);
-  }
-
+  const fullText = stripChannelPrefix(og["og:description"] || "");
+  const { title, description } = splitTitleDescription(fullText);
+  const image = briefImage || og["og:image"] || null;
   const publishedAt =
     og["article:published_time"] ||
-    objectIdToDate(objectIdFromImageUrl(image));
-
-  const wordCount = rawDescription.trim().split(/\s+/).filter(Boolean).length;
-  const readingMinutes = Math.max(1, Math.round(wordCount / 180));
-
+    objectIdToDate(objectIdFromUrl(image)) ||
+    objectIdToDate(objectIdFromUrl(og["og:image"]));
+  const wordCount = fullText.trim().split(/\s+/).filter(Boolean).length;
   return {
     url,
-    title: title.trim(),
-    description: description.trim(),
+    title,
+    description,
     image,
     publishedAt,
-    readingMinutes,
+    readingMinutes: Math.max(1, Math.round(wordCount / 180)),
   };
 }
 
@@ -154,18 +152,37 @@ async function main() {
 
   const channelOg = parseOgMeta(channelHtml);
   const channelTitle = (channelOg["og:title"] || "АГРОФАНАТ").replace(/\s*\|\s*Дзен\s*$/iu, "").trim();
+  const items = extractItemList(channelHtml);
+  const briefImageMap = extractBriefImageMap(channelHtml);
 
-  const urls = extractChannelPostUrls(channelHtml);
-  if (urls.length === 0) {
-    console.error("[sync-dzen] no post URLs found in channel page");
+  if (items.length === 0) {
+    console.error("[sync-dzen] no posts in channel JSON-LD");
     const prev = await loadPrevious();
     if (prev) process.exit(0);
     process.exit(1);
   }
 
-  console.log(`[sync-dzen] found ${urls.length} post URLs in channel page`);
+  console.log(`[sync-dzen] found ${items.length} posts in JSON-LD`);
 
-  const enriched = await Promise.allSettled(urls.map((u) => enrichPost(u)));
+  const enriched = await Promise.allSettled(
+    items.map(async (it) => {
+      const isBrief = /\/b\//.test(it.url);
+      if (!isBrief && it.name && it.description) {
+        // article: всё уже в JSON-LD - не делаем лишний HTTP запрос
+        return {
+          url: it.url,
+          title: it.name.trim(),
+          description: it.description.trim(),
+          image: it.image || null,
+          publishedAt: it.datePublished || objectIdToDate(objectIdFromUrl(it.image)),
+          readingMinutes: Math.max(1, Math.round(it.description.trim().split(/\s+/).length / 180)),
+        };
+      }
+      // brief: тянем текст из og:description, картинку - из карты канала (без overlay-текста)
+      return enrichBrief(it.url, briefImageMap.get(it.url));
+    })
+  );
+
   const ok = enriched
     .filter((r) => r.status === "fulfilled" && r.value.url && (r.value.title || r.value.description))
     .map((r) => r.value);
@@ -180,17 +197,17 @@ async function main() {
   ok.sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
 
   const payload = {
-    channel: {
-      id: CHANNEL_ID,
-      title: channelTitle,
-      url: CHANNEL_URL,
-    },
+    channel: { id: CHANNEL_ID, title: channelTitle, url: CHANNEL_URL },
     syncedAt: new Date().toISOString(),
     posts: ok.slice(0, LIMIT),
   };
 
   await writeFile(OUTPUT, JSON.stringify(payload, null, 2) + "\n", "utf8");
   console.log(`[sync-dzen] wrote ${payload.posts.length} posts (latest: ${payload.posts[0].publishedAt})`);
+}
+
+async function loadPrevious() {
+  try { return JSON.parse(await readFile(OUTPUT, "utf8")); } catch { return null; }
 }
 
 main().catch((err) => {

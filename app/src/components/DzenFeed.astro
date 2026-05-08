@@ -85,19 +85,11 @@ function formatDate(iso: string | null) {
 
               <div class="p-6 lg:p-8 flex-1 flex flex-col">
                 {date && <div class="font-mono text-[11px] tracking-[0.18em] uppercase text-text-muted mb-3 tabular-nums">{date}</div>}
-                {p.title ? (
-                  <>
-                    <h3 class="display text-[24px] lg:text-[28px] text-text mb-3 leading-[1.1] group-hover:text-accent transition-colors">
-                      {p.title}
-                    </h3>
-                    {p.description && (
-                      <p class="text-[14px] leading-[1.5] text-text-dim line-clamp-3 mb-6">{p.description}</p>
-                    )}
-                  </>
-                ) : (
-                  <p class="text-[18px] lg:text-[20px] leading-[1.35] text-text mb-6 line-clamp-5 group-hover:text-accent transition-colors">
-                    {p.description}
-                  </p>
+                <h3 class="display text-[22px] lg:text-[26px] text-text mb-3 leading-[1.15] group-hover:text-accent transition-colors line-clamp-3">
+                  {p.title}
+                </h3>
+                {p.description && (
+                  <p class="text-[14px] leading-[1.5] text-text-dim line-clamp-3 mb-6">{p.description}</p>
                 )}
                 <span class="mt-auto inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase text-accent group-hover:translate-x-1 transition-transform">
                   Открыть в Дзене <span>↗</span>
