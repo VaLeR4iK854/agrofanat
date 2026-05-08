@@ -118,16 +118,29 @@ function extractBriefImageMap(channelHtml) {
   return map;
 }
 
-async function enrichBrief(url, briefImage) {
+// для brief: первое предложение/clause уже отрисовано на og:image (Дзен
+// автогенерит preview с текстом). в карточке показываем только остаток,
+// чтобы не повторять то что уже на обложке.
+function skipFirstClause(text) {
+  const trimmed = (text || "").trim();
+  if (!trimmed) return "";
+  const sentenceBreak = trimmed.match(/^[\s\S]{20,180}?[.!?]\s+([\s\S]+)$/u);
+  if (sentenceBreak) return sentenceBreak[1].trim();
+  const softBreak = trimmed.match(/^[\s\S]{30,90}?[,)\-—–]\s+([\s\S]+)$/u);
+  if (softBreak) return softBreak[1].trim();
+  return trimmed;
+}
+
+async function enrichBrief(url) {
   const html = await fetchText(url, OG_UA);
   const og = parseOgMeta(html);
   const fullText = stripChannelPrefix(og["og:description"] || "");
-  const { title, description } = splitTitleDescription(fullText);
-  const image = briefImage || og["og:image"] || null;
+  const remainder = skipFirstClause(fullText);
+  const { title, description } = splitTitleDescription(remainder);
+  const image = og["og:image"] || null;
   const publishedAt =
     og["article:published_time"] ||
-    objectIdToDate(objectIdFromUrl(image)) ||
-    objectIdToDate(objectIdFromUrl(og["og:image"]));
+    objectIdToDate(objectIdFromUrl(image));
   const wordCount = fullText.trim().split(/\s+/).filter(Boolean).length;
   return {
     url,
@@ -178,8 +191,9 @@ async function main() {
           readingMinutes: Math.max(1, Math.round(it.description.trim().split(/\s+/).length / 180)),
         };
       }
-      // brief: тянем текст из og:description, картинку - из карты канала (без overlay-текста)
-      return enrichBrief(it.url, briefImageMap.get(it.url));
+      // brief: первое предложение уже на og:image (Дзен генерит preview),
+      // в карточке показываем продолжение текста чтобы не дублировать обложку
+      return enrichBrief(it.url);
     })
   );
 
