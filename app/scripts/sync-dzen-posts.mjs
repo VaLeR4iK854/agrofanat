@@ -115,12 +115,12 @@ async function enrichPost(url) {
   let title;
   let description;
   if (isBrief) {
-    // brief посты: og:title = имя канала. делаем заголовок-спойлер из первых
-    // ~70 символов текста (обрезаем по слову), описание содержит полный текст.
-    title = spoilerCut(rawDescription, 70);
+    // brief в Дзене - формат коротких заметок без заголовка, весь пост это
+    // og:description целиком. рендерим текст без h3.
+    title = "";
     description = rawDescription;
   } else {
-    title = (og["og:title"] || "").trim() || spoilerCut(rawDescription, 70);
+    title = (og["og:title"] || "").trim();
     description = firstSentence(rawDescription, 240);
   }
 
@@ -167,7 +167,7 @@ async function main() {
 
   const enriched = await Promise.allSettled(urls.map((u) => enrichPost(u)));
   const ok = enriched
-    .filter((r) => r.status === "fulfilled" && r.value.title && r.value.url)
+    .filter((r) => r.status === "fulfilled" && r.value.url && (r.value.title || r.value.description))
     .map((r) => r.value);
 
   if (ok.length === 0) {
