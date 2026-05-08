@@ -4,37 +4,55 @@
     "title": "АГРОФАНАТ",
     "url": "https://dzen.ru/id/5d597768a2d6ed00ac2cd607"
   },
-  "syncedAt": "2026-05-08T00:10:54.733Z",
+  "syncedAt": "2026-05-08T00:34:11.780Z",
   "posts": [
     {
-      "id": "69fa409749f7d66770deb5ea",
-      "url": "https://dzen.ru/a/afpAl0n31mdw3rXq",
-      "title": "🥔 Через две недели после посадки картофеля в ведрах",
-      "description": "Вёдра стоят на улице и несмотря на прохладную погоду всходы чувствуют себя замечательно. И с этого дня я начал уже применять полив.",
-      "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69fa409749f7d66770deb5ea_69fcdc1562d0571e32437dc2/optimize",
-      "publishedAt": "2026-05-05T19:10:15.000Z",
-      "readingMinutes": 1,
-      "views": 5
+      "url": "https://dzen.ru/b/afxziZ5lPXeD_cWt",
+      "title": "👀 Первое окучивание картофеля я произвёл 26 апреля 2026 года, это получается, через 36 дней после посадки в…",
+      "description": "👀 Первое окучивание картофеля я произвёл 26 апреля 2026 года, это получается, через 36 дней после посадки в открытый грунт.",
+      "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69fc73899e653d7783fdc5ad_69fcdc1262d0571e32437dc1/optimize",
+      "publishedAt": "2026-05-07T11:12:09.000Z",
+      "readingMinutes": 1
     },
     {
-      "id": "69f9061efcdf840e9d74c963",
+      "url": "https://dzen.ru/b/afsy5O8_N2Itnjwe",
+      "title": "Прошло 34 дня (24 апреля 2026 года) с момента посадки картофеля в грунт.",
+      "description": "Прошло 34 дня (24 апреля 2026 года) с момента посадки картофеля в грунт. Всхожесть не сказать, что дружная, но кусты взошли все.",
+      "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69fb32e4ef3f37622d9e3c1e_69fcdc1062d0571e32437dc0/optimize",
+      "publishedAt": "2026-05-06T12:24:04.000Z",
+      "readingMinutes": 1
+    },
+    {
+      "url": "https://dzen.ru/b/afsapPrI7SJ8Bvtz",
+      "title": "Через 22 дня после посадки картофеля в ведре, ростки значительно выросли и приобрели полноценную форму,…",
+      "description": "Через 22 дня после посадки картофеля в ведре, ростки значительно выросли и приобрели полноценную форму, только маленькие.",
+      "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69fb1aa4fac8ed227c06fb73_69fcdc0e62d0571e32437dbf/optimize",
+      "publishedAt": "2026-05-06T10:40:36.000Z",
+      "readingMinutes": 1
+    },
+    {
+      "url": "https://dzen.ru/a/afpAl0n31mdw3rXq",
+      "title": "🥔 Через две недели после посадки картофеля в ведрах",
+      "description": "Вёдра стоят на улице и несмотря на прохладную погоду всходы чувствуют себя замечательно.",
+      "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69fa409749f7d66770deb5ea_69fcdc1562d0571e32437dc2/optimize",
+      "publishedAt": "2026-05-05T19:10:15.000Z",
+      "readingMinutes": 1
+    },
+    {
       "url": "https://dzen.ru/a/afkGHvzfhA6ddMlj",
       "title": "Сажаем картофель в грунт",
       "description": "Под картошку выделил около 0.5 сотки, в моём случае, это 200 кустов.",
       "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69f9061efcdf840e9d74c963_69fcdc0762d0571e32437dbc/optimize",
       "publishedAt": "2026-05-04T20:48:30.000Z",
-      "readingMinutes": 1,
-      "views": 7
+      "readingMinutes": 1
     },
     {
-      "id": "69f904712464ba6c78277e78",
       "url": "https://dzen.ru/a/afkEcSRkumx4J354",
       "title": "Выращиваем картофель в ведре",
-      "description": "Картошку в грунте сажал и опыт имеется, а вот выращивать в ведре буду первый раз. Для этого закупил два строительных ведра ёмкостью на 16 литров.",
+      "description": "Картошку в грунте сажал и опыт имеется, а вот выращивать в ведре буду первый раз.",
       "image": "https://avatars.dzeninfra.ru/get-zen-pub-og/271828/pub_69f904712464ba6c78277e78_69fcdc0a62d0571e32437dbd/optimize",
       "publishedAt": "2026-05-04T20:41:21.000Z",
-      "readingMinutes": 1,
-      "views": 9
+      "readingMinutes": 1
     }
   ]
 }

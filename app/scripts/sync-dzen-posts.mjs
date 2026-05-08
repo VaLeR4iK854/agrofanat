@@ -10,10 +10,10 @@ const OG_UA = "Mozilla/5.0 (compatible; Twitterbot/1.0)";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const OUTPUT = resolve(__dirname, "../src/data/dzen-posts.json");
-
-const FEED_URL = `https://dzen.ru/api/v3/launcher/more?country_code=ru&channel_id=${CHANNEL_ID}`;
+const CHANNEL_URL = `https://dzen.ru/id/${CHANNEL_ID}`;
 
 const META_REGEX = /<meta\s+(?:property|name)=["'](og:[^"']+|twitter:[^"']+|article:[^"']+)["']\s+content=["']([^"']*)["']\s*\/?>/gi;
+const JSON_LD_REGEX = /<script[^>]*type=["']application\/ld\+json["'][^>]*>([\s\S]*?)<\/script>/gi;
 
 function parseOgMeta(html) {
   const meta = {};
@@ -34,29 +34,56 @@ function decodeHtmlEntities(s) {
     .replace(/&#x27;/g, "'");
 }
 
+function objectIdFromImageUrl(url) {
+  if (!url) return null;
+  const m = url.match(/pub_([a-f0-9]{24})_/i);
+  return m ? m[1] : null;
+}
+
 function objectIdToDate(oid) {
-  if (!/^[0-9a-f]{24}$/i.test(oid)) return null;
+  if (!oid || !/^[0-9a-f]{24}$/i.test(oid)) return null;
   const seconds = parseInt(oid.slice(0, 8), 16);
   if (!Number.isFinite(seconds) || seconds <= 0) return null;
   return new Date(seconds * 1000).toISOString();
 }
 
-function cleanDescription(raw, channelTitle) {
+function stripChannelPrefix(raw) {
   if (!raw) return "";
-  const prefix = new RegExp(`^Статья автора[\\s«]+${channelTitle.trim()}[\\s»]+в Дзене\\s*[✍️]*\\s*:?\\s*`, "iu");
-  return raw.replace(prefix, "").trim();
+  return raw.replace(/^(?:Статья|Пост|Видео)\s+автора[^:]*?в\s+Дзене[^:]*:\s*/u, "").trim();
 }
 
-async function fetchJson(url) {
-  const res = await fetch(url, { headers: { "user-agent": FEED_UA, accept: "application/json" } });
-  if (!res.ok) throw new Error(`feed ${url}: HTTP ${res.status}`);
-  return res.json();
+function firstSentence(text, maxLen = 120) {
+  if (!text) return "";
+  const trimmed = text.trim();
+  const dotIdx = trimmed.search(/[.!?]\s/);
+  if (dotIdx > 0 && dotIdx < maxLen + 40) return trimmed.slice(0, dotIdx + 1).trim();
+  if (trimmed.length <= maxLen) return trimmed;
+  const cut = trimmed.slice(0, maxLen);
+  const lastSpace = cut.lastIndexOf(" ");
+  return (lastSpace > 40 ? cut.slice(0, lastSpace) : cut).trim() + "…";
 }
 
-async function fetchHtml(url) {
-  const res = await fetch(url, { headers: { "user-agent": OG_UA, accept: "text/html" }, redirect: "follow" });
-  if (!res.ok) throw new Error(`og ${url}: HTTP ${res.status}`);
+async function fetchText(url, ua) {
+  const res = await fetch(url, { headers: { "user-agent": ua, accept: "text/html" }, redirect: "follow" });
+  if (!res.ok) throw new Error(`${url}: HTTP ${res.status}`);
   return res.text();
+}
+
+function extractChannelPostUrls(channelHtml) {
+  const urls = new Set();
+  for (const match of channelHtml.matchAll(JSON_LD_REGEX)) {
+    let block;
+    try { block = JSON.parse(match[1]); } catch { continue; }
+    if (block?.["@type"] !== "ItemList" || !Array.isArray(block.itemListElement)) continue;
+    for (const el of block.itemListElement) {
+      const item = el?.item ?? el;
+      const url = item?.url;
+      if (typeof url === "string" && /^https:\/\/dzen\.ru\/[ab]\/[^/?#]+$/.test(url)) {
+        urls.add(url);
+      }
+    }
+  }
+  return [...urls];
 }
 
 async function loadPrevious() {
@@ -68,62 +95,72 @@ async function loadPrevious() {
   }
 }
 
+async function enrichPost(url) {
+  const html = await fetchText(url, OG_UA);
+  const og = parseOgMeta(html);
+  const image = og["og:image"] || null;
+  const rawDescription = stripChannelPrefix(og["og:description"] || "");
+  const isBrief = /\/b\//.test(url);
+
+  let title;
+  let description;
+  if (isBrief) {
+    // brief посты: og:title = имя канала, реальный текст только в og:description
+    title = firstSentence(rawDescription, 110);
+    description = rawDescription;
+  } else {
+    title = (og["og:title"] || "").trim() || firstSentence(rawDescription, 110);
+    description = firstSentence(rawDescription, 240);
+  }
+
+  const publishedAt =
+    og["article:published_time"] ||
+    objectIdToDate(objectIdFromImageUrl(image));
+
+  const wordCount = rawDescription.trim().split(/\s+/).filter(Boolean).length;
+  const readingMinutes = Math.max(1, Math.round(wordCount / 180));
+
+  return {
+    url,
+    title: title.trim(),
+    description: description.trim(),
+    image,
+    publishedAt,
+    readingMinutes,
+  };
+}
+
 async function main() {
-  let feed;
+  let channelHtml;
   try {
-    feed = await fetchJson(FEED_URL);
+    channelHtml = await fetchText(CHANNEL_URL, OG_UA);
   } catch (err) {
-    console.error("[sync-dzen] feed fetch failed:", err.message);
+    console.error("[sync-dzen] channel page fetch failed:", err.message);
     const prev = await loadPrevious();
-    if (prev) {
-      console.error("[sync-dzen] keeping previous snapshot");
-      process.exit(0);
-    }
+    if (prev) { console.error("[sync-dzen] keeping previous snapshot"); process.exit(0); }
     process.exit(1);
   }
 
-  const items = (feed.items ?? []).filter((i) => i.share_link).slice(0, LIMIT);
-  if (items.length === 0) {
-    console.error("[sync-dzen] feed returned 0 posts");
+  const channelOg = parseOgMeta(channelHtml);
+  const channelTitle = (channelOg["og:title"] || "АГРОФАНАТ").replace(/\s*\|\s*Дзен\s*$/iu, "").trim();
+
+  const urls = extractChannelPostUrls(channelHtml);
+  if (urls.length === 0) {
+    console.error("[sync-dzen] no post URLs found in channel page");
     const prev = await loadPrevious();
     if (prev) process.exit(0);
     process.exit(1);
   }
 
-  const channelTitle = (items[0].domain_title ?? "").trim();
+  console.log(`[sync-dzen] found ${urls.length} post URLs in channel page`);
 
-  const enriched = await Promise.all(
-    items.map(async (item) => {
-      const url = item.share_link;
-      let og = {};
-      try {
-        const html = await fetchHtml(url);
-        og = parseOgMeta(html);
-      } catch (err) {
-        console.error(`[sync-dzen] og fetch failed for ${url}: ${err.message}`);
-      }
+  const enriched = await Promise.allSettled(urls.map((u) => enrichPost(u)));
+  const ok = enriched
+    .filter((r) => r.status === "fulfilled" && r.value.title && r.value.url)
+    .map((r) => r.value);
 
-      const title = og["og:title"] || item.title || "";
-      const description = cleanDescription(og["og:description"] || item.text || "", channelTitle);
-      const image = og["og:image"] || null;
-      const publishedAt = og["article:published_time"] || objectIdToDate(item.publication_object_id);
-
-      return {
-        id: item.publication_object_id,
-        url,
-        title: title.trim(),
-        description: description.trim(),
-        image,
-        publishedAt,
-        readingMinutes: Math.max(1, Math.round((item.timeToReadSeconds ?? 60) / 60)),
-        views: item.views ?? 0,
-      };
-    })
-  );
-
-  const ok = enriched.filter((p) => p.title && p.url);
   if (ok.length === 0) {
-    console.error("[sync-dzen] no valid posts after enrichment");
+    console.error("[sync-dzen] enrichment produced 0 valid posts");
     const prev = await loadPrevious();
     if (prev) process.exit(0);
     process.exit(1);
@@ -135,14 +172,14 @@ async function main() {
     channel: {
       id: CHANNEL_ID,
       title: channelTitle,
-      url: `https://dzen.ru/id/${CHANNEL_ID}`,
+      url: CHANNEL_URL,
     },
     syncedAt: new Date().toISOString(),
-    posts: ok,
+    posts: ok.slice(0, LIMIT),
   };
 
   await writeFile(OUTPUT, JSON.stringify(payload, null, 2) + "\n", "utf8");
-  console.log(`[sync-dzen] wrote ${ok.length} posts to ${OUTPUT}`);
+  console.log(`[sync-dzen] wrote ${payload.posts.length} posts (latest: ${payload.posts[0].publishedAt})`);
 }
 
 main().catch((err) => {
