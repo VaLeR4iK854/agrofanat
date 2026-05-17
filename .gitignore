@@ -36,6 +36,8 @@ Thumbs.db
 *.jpg
 !app/public/**/*.png
 !app/public/**/*.jpg
+!app/src/assets/**/*.png
+!app/src/assets/**/*.jpg
 !docs/**/*.png
 
 # Payload CMS

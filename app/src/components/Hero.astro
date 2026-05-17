@@ -1,4 +1,6 @@
 ---
+import { Image } from "astro:assets";
+import heroFarm from "../assets/hero-farm.png";
 ---
 
 <section class="relative pt-36 lg:pt-44 pb-24 lg:pb-32 overflow-hidden">
@@ -77,14 +79,25 @@
 
   </div>
 
-  <div class="absolute hidden lg:block top-32 right-10 text-text-muted">
-    <svg width="120" height="120" viewBox="0 0 120 120" fill="none" stroke="currentColor" stroke-width="0.5">
-      <circle cx="60" cy="60" r="58"/>
-      <circle cx="60" cy="60" r="40"/>
-      <circle cx="60" cy="60" r="22"/>
-      <circle cx="60" cy="60" r="2" fill="currentColor"/>
-      <line x1="0" y1="60" x2="120" y2="60"/>
-      <line x1="60" y1="0" x2="60" y2="120"/>
-    </svg>
+  <div class="absolute hidden lg:block top-28 right-10 w-[280px]">
+    <div class="relative border border-border-strong overflow-hidden">
+      <Image
+        src={heroFarm}
+        alt=""
+        width={560}
+        widths={[280, 560]}
+        sizes="280px"
+        formats={["avif", "webp"]}
+        quality={82}
+        loading="eager"
+        decoding="async"
+        class="block w-full h-auto"
+      />
+      <div class="absolute inset-0 pointer-events-none bg-gradient-to-tr from-bg/60 via-transparent to-transparent"></div>
+      <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between font-mono text-[10px] tracking-[0.18em] uppercase text-text">
+        <span class="bg-bg/70 backdrop-blur px-2 py-0.5">2026 / БАЛКОН</span>
+        <span class="bg-accent text-bg px-2 py-0.5">REC ●</span>
+      </div>
+    </div>
   </div>
 </section>
