@@ -44,3 +44,7 @@ Thumbs.db
 
 # old Astro project (removed during migration to Next.js + Payload)
 app.old/
+
+# internal docs (kept locally for AI / reference, not part of the published app)
+docs/
+README.md
