@@ -4,7 +4,30 @@ import heroFarm from "../assets/hero-farm.png";
 ---
 
 <section class="relative pt-36 lg:pt-44 pb-24 lg:pb-32 overflow-hidden">
-  <div class="absolute inset-0 grid-bg opacity-60 pointer-events-none"></div>
+
+  <div class="absolute inset-0 pointer-events-none">
+    <Image
+      src={heroFarm}
+      alt=""
+      width={2048}
+      widths={[1024, 1536, 2048]}
+      sizes="100vw"
+      formats={["avif", "webp"]}
+      quality={72}
+      loading="eager"
+      decoding="async"
+      class="absolute inset-0 w-full h-full object-cover object-center opacity-45"
+    />
+    <div class="absolute inset-0 bg-bg/55"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-bg/40 via-bg/55 to-bg"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-bg/85 via-bg/35 to-transparent"></div>
+    <div
+      class="absolute inset-0"
+      style="background: radial-gradient(ellipse 700px 460px at 85% 18%, rgba(157,255,107,0.14), transparent 65%);"
+    ></div>
+  </div>
+
+  <div class="absolute inset-0 grid-bg opacity-25 pointer-events-none"></div>
 
   <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent"></div>
 
@@ -77,27 +100,5 @@ import heroFarm from "../assets/hero-farm.png";
       </div>
     </div>
 
-  </div>
-
-  <div class="absolute hidden lg:block top-28 right-10 w-[280px]">
-    <div class="relative border border-border-strong overflow-hidden">
-      <Image
-        src={heroFarm}
-        alt=""
-        width={560}
-        widths={[280, 560]}
-        sizes="280px"
-        formats={["avif", "webp"]}
-        quality={82}
-        loading="eager"
-        decoding="async"
-        class="block w-full h-auto"
-      />
-      <div class="absolute inset-0 pointer-events-none bg-gradient-to-tr from-bg/60 via-transparent to-transparent"></div>
-      <div class="absolute bottom-2 left-2 right-2 flex items-center justify-between font-mono text-[10px] tracking-[0.18em] uppercase text-text">
-        <span class="bg-bg/70 backdrop-blur px-2 py-0.5">2026 / БАЛКОН</span>
-        <span class="bg-accent text-bg px-2 py-0.5">REC ●</span>
-      </div>
-    </div>
   </div>
 </section>
