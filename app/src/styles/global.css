@@ -135,6 +135,75 @@
     box-shadow: 0 0 0 1px rgba(157, 255, 107, 0.12),
                 0 0 40px -10px rgba(157, 255, 107, 0.25);
   }
+
+  .prose-doc {
+    font-size: 15px;
+    line-height: 1.7;
+    color: var(--color-text-dim);
+  }
+  .prose-doc section + section {
+    margin-top: 2.5rem;
+  }
+  .prose-doc h2 {
+    font-family: var(--font-sans);
+    font-size: 22px;
+    letter-spacing: var(--tracking-display);
+    line-height: 1.2;
+    color: var(--color-text);
+    font-weight: 500;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 1px solid var(--color-border);
+  }
+  .prose-doc p {
+    margin-bottom: 1rem;
+  }
+  .prose-doc p:last-child {
+    margin-bottom: 0;
+  }
+  .prose-doc strong {
+    color: var(--color-text);
+    font-weight: 500;
+  }
+  .prose-doc a {
+    color: var(--color-accent);
+    text-decoration: underline;
+    text-decoration-color: rgba(157, 255, 107, 0.4);
+    text-underline-offset: 3px;
+    transition: text-decoration-color 0.2s;
+    word-break: break-word;
+  }
+  .prose-doc a:hover {
+    text-decoration-color: var(--color-accent);
+  }
+  .prose-doc ul {
+    margin: 1rem 0;
+    padding-left: 0;
+    list-style: none;
+  }
+  .prose-doc ul li {
+    position: relative;
+    padding-left: 1.5rem;
+    margin-bottom: 0.6rem;
+  }
+  .prose-doc ul li::before {
+    content: "—";
+    position: absolute;
+    left: 0;
+    color: var(--color-accent);
+  }
+  .prose-doc .contact {
+    font-family: var(--font-mono);
+    font-size: 14px;
+    letter-spacing: var(--tracking-mono);
+    padding: 1rem 1.25rem;
+    background: var(--color-bg-elevated);
+    border-left: 2px solid var(--color-accent);
+    margin: 1.25rem 0;
+  }
+  .prose-doc .contact a {
+    text-decoration: none;
+  }
 }
 
 @keyframes pulse {
