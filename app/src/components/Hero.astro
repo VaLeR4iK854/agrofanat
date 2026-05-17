@@ -1,6 +1,7 @@
 ---
 import { Image } from "astro:assets";
 import heroFarm from "../assets/hero-farm.png";
+import heroOrb from "../assets/hero-orb.jpg";
 ---
 
 <section class="relative pt-36 lg:pt-44 pb-24 lg:pb-32 overflow-hidden">
@@ -16,18 +17,18 @@ import heroFarm from "../assets/hero-farm.png";
       quality={72}
       loading="eager"
       decoding="async"
-      class="absolute inset-0 w-full h-full object-cover object-center opacity-45"
+      class="absolute inset-0 w-full h-full object-cover object-center opacity-55"
     />
-    <div class="absolute inset-0 bg-bg/55"></div>
-    <div class="absolute inset-0 bg-gradient-to-b from-bg/40 via-bg/55 to-bg"></div>
-    <div class="absolute inset-0 bg-gradient-to-r from-bg/85 via-bg/35 to-transparent"></div>
+    <div class="absolute inset-0 bg-bg/45"></div>
+    <div class="absolute inset-0 bg-gradient-to-b from-bg/30 via-bg/45 to-bg"></div>
+    <div class="absolute inset-0 bg-gradient-to-r from-bg/70 via-bg/25 to-transparent"></div>
     <div
       class="absolute inset-0"
       style="background: radial-gradient(ellipse 700px 460px at 85% 18%, rgba(157,255,107,0.14), transparent 65%);"
     ></div>
   </div>
 
-  <div class="absolute inset-0 grid-bg opacity-25 pointer-events-none"></div>
+  <div class="absolute inset-0 grid-bg opacity-20 pointer-events-none"></div>
 
   <div class="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-accent/40 to-transparent"></div>
 
@@ -100,5 +101,28 @@ import heroFarm from "../assets/hero-farm.png";
       </div>
     </div>
 
+  </div>
+
+  <div class="absolute hidden lg:block top-28 right-10 w-[260px] h-[260px] pointer-events-none">
+    <div class="absolute -inset-4 rounded-full bg-[radial-gradient(circle,rgba(157,255,107,0.25),transparent_70%)] blur-xl"></div>
+    <div class="relative w-full h-full rounded-full overflow-hidden border border-accent/40 shadow-[0_0_0_1px_rgba(157,255,107,0.15),0_20px_60px_-20px_rgba(0,0,0,0.6)]">
+      <Image
+        src={heroOrb}
+        alt=""
+        width={520}
+        widths={[260, 520]}
+        sizes="260px"
+        formats={["avif", "webp"]}
+        quality={82}
+        loading="eager"
+        decoding="async"
+        class="absolute inset-0 w-full h-full object-cover"
+      />
+      <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-bg/40 via-transparent to-transparent"></div>
+      <div class="absolute inset-0 rounded-full ring-1 ring-inset ring-white/5"></div>
+    </div>
+    <div class="absolute -bottom-1 left-1/2 -translate-x-1/2 font-mono text-[10px] tracking-[0.22em] uppercase text-text-muted bg-bg/80 backdrop-blur px-2.5 py-1 border border-border">
+      ОБЪЕКТИВ · 01
+    </div>
   </div>
 </section>
