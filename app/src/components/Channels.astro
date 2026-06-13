@@ -11,15 +11,24 @@ const channels = [
   },
   {
     code: "№ 02",
+    name: "Рутуб",
+    handle: "Агрофанат",
+    desc: "Видеоверсии экспериментов, сборки, разборы",
+    status: "В ЭФИРЕ",
+    href: "https://rutube.ru/channel/78376603/",
+    live: true,
+  },
+  {
+    code: "№ 03",
     name: "Ютуб",
     handle: "скоро",
-    desc: "Длинные эксперименты, сборки, разборы",
+    desc: "Длинные эксперименты для аудитории вне РФ",
     status: "СКОРО",
     href: null,
     live: false,
   },
   {
-    code: "№ 03",
+    code: "№ 04",
     name: "Телеграм",
     handle: "скоро",
     desc: "Ежедневный дневник, чертежи, ответы",
@@ -28,7 +37,7 @@ const channels = [
     live: false,
   },
   {
-    code: "№ 04",
+    code: "№ 05",
     name: "ТикТок",
     handle: "скоро",
     desc: "Короткие лайфхаки, результаты",
@@ -37,6 +46,9 @@ const channels = [
     live: false,
   },
 ];
+
+const liveCount = channels.filter((c) => c.live).length;
+const soonCount = channels.length - liveCount;
 ---
 
 <section id="channels" class="relative py-24 lg:py-32 border-t border-border">
@@ -53,7 +65,7 @@ const channels = [
           Где смотреть<span class="text-accent">.</span>
         </h2>
       </div>
-      <span class="hidden md:inline label">1 В ЭФИРЕ · 3 НА СТАРТЕ</span>
+      <span class="hidden md:inline label">{liveCount} В ЭФИРЕ · {soonCount} НА СТАРТЕ</span>
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-px bg-border">
@@ -90,14 +102,14 @@ const channels = [
             href={ch.href}
             rel="me noopener"
             target="_blank"
-            class="group relative bg-bg p-8 lg:p-10 hover:bg-bg-elevated transition-colors reveal"
+            class="group relative bg-bg p-8 lg:p-10 hover:bg-bg-elevated transition-colors reveal md:last:odd:col-span-2"
             style={`--reveal-delay: ${i * 80}ms`}
           >
             {Inner}
           </a>
         ) : (
           <div
-            class="group relative bg-bg p-8 lg:p-10 reveal"
+            class="group relative bg-bg p-8 lg:p-10 reveal md:last:odd:col-span-2"
             style={`--reveal-delay: ${i * 80}ms`}
           >
             {Inner}
