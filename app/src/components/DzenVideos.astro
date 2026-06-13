@@ -1,0 +1,123 @@
+---
+import feed from "../data/dzen-posts.json";
+
+const videos = (feed.videos ?? []).slice(0, 3);
+
+const dateFormatter = new Intl.DateTimeFormat("ru-RU", {
+  day: "2-digit",
+  month: "short",
+  year: "numeric",
+});
+
+function formatDate(iso: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "";
+  return dateFormatter.format(d).replace(/\.$/, "").toUpperCase();
+}
+
+function formatDuration(seconds: number | null | undefined) {
+  if (!seconds || seconds < 1) return "";
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  const s = seconds % 60;
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return h > 0 ? `${h}:${pad(m)}:${pad(s)}` : `${m}:${pad(s)}`;
+}
+---
+
+{videos.length > 0 && (
+  <section class="relative py-24 lg:py-32 border-t border-border">
+    <div class="mx-auto max-w-[1400px] px-6 lg:px-10">
+
+      <div class="flex items-end justify-between mb-16 lg:mb-20 reveal">
+        <div>
+          <div class="flex items-center gap-3 mb-4">
+            <div class="h-px w-10 bg-accent/60"></div>
+            <span class="label-accent">07 / ВИДЕО</span>
+          </div>
+          <h2 class="display text-[40px] lg:text-[64px] text-text">Видеодневник</h2>
+        </div>
+        <a
+          href={feed.channel.url}
+          rel="me noopener"
+          target="_blank"
+          class="hidden md:inline-flex items-center gap-2 label hover:text-accent transition-colors group"
+        >
+          ВСЕ ВИДЕО В ДЗЕНЕ
+          <span class="transition-transform group-hover:translate-x-1">→</span>
+        </a>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-px bg-border">
+        {videos.map((v, i) => {
+          const code = `№ ${String(i + 1).padStart(2, "0")}`;
+          const date = formatDate(v.publishedAt);
+          const duration = formatDuration(v.durationSeconds);
+          return (
+            <a
+              href={v.url}
+              rel="me noopener"
+              target="_blank"
+              class="group relative bg-bg overflow-hidden hover:bg-bg-elevated transition-colors reveal flex flex-col"
+              style={`--reveal-delay: ${i * 100}ms`}
+            >
+              <div class="relative aspect-video bg-gradient-to-br from-accent/15 to-transparent border-b border-border overflow-hidden">
+                {v.image ? (
+                  <img
+                    src={v.image}
+                    alt={v.title}
+                    loading="lazy"
+                    decoding="async"
+                    referrerpolicy="no-referrer"
+                    class="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-[1.02] transition-all duration-500"
+                  />
+                ) : (
+                  <>
+                    <div class="absolute inset-0 grid-bg opacity-40"></div>
+                    <div class="absolute inset-0 flex items-center justify-center">
+                      <div class="font-mono text-[10px] tracking-[0.2em] uppercase text-text-muted">
+                        ◌ ◌ ◌
+                      </div>
+                    </div>
+                  </>
+                )}
+
+                <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  <span class="flex items-center justify-center w-14 h-14 rounded-full bg-bg/70 backdrop-blur border border-accent/40 text-accent text-[18px] pl-1 group-hover:bg-accent group-hover:text-bg group-hover:scale-110 transition-all duration-300">
+                    ▶
+                  </span>
+                </div>
+
+                <div class="absolute top-4 left-4 right-4 flex items-center justify-between">
+                  <span class="label-accent bg-bg/70 backdrop-blur px-2 py-1">{code}</span>
+                  {duration && (
+                    <span class="font-mono text-[11px] text-text bg-bg/80 backdrop-blur px-2 py-1 tabular-nums">{duration}</span>
+                  )}
+                </div>
+
+                <div class="absolute bottom-4 left-4">
+                  <span class="font-mono text-[10px] tracking-[0.2em] uppercase text-bg bg-accent px-2 py-1">ВИДЕО</span>
+                </div>
+              </div>
+
+              <div class="p-6 lg:p-8 flex-1 flex flex-col">
+                {date && <div class="font-mono text-[11px] tracking-[0.18em] uppercase text-text-muted mb-3 tabular-nums">{date}</div>}
+                <h3 class="display text-[22px] lg:text-[26px] text-text mb-3 leading-[1.15] group-hover:text-accent transition-colors line-clamp-3">
+                  {v.title}
+                </h3>
+                {v.description && (
+                  <p class="text-[14px] leading-[1.5] text-text-dim line-clamp-3 mb-6">{v.description}</p>
+                )}
+                <span class="mt-auto inline-flex items-center gap-2 font-mono text-[11px] tracking-[0.18em] uppercase text-accent group-hover:translate-x-1 transition-transform">
+                  Смотреть в Дзене <span>↗</span>
+                </span>
+              </div>
+            </a>
+          );
+        })}
+      </div>
+
+    </div>
+  </section>
+)}

@@ -7,6 +7,7 @@ import { fileURLToPath } from "node:url";
 const CHANNEL_ID = process.env.DZEN_CHANNEL_ID ?? "5d597768a2d6ed00ac2cd607";
 const CHANNEL_SLUG = process.env.DZEN_CHANNEL_SLUG ?? "agrofanat";
 const LIMIT = Number(process.env.DZEN_POSTS_LIMIT ?? 6);
+const VIDEOS_LIMIT = Number(process.env.DZEN_VIDEOS_LIMIT ?? 3);
 const FEED_UA = "Mozilla/5.0 (compatible; AgrofanatBot/1.0; +https://agrofanat.ru)";
 const OG_UA = "Mozilla/5.0 (compatible; Twitterbot/1.0)";
 
@@ -186,6 +187,75 @@ async function enrichBrief(url, briefImage) {
   };
 }
 
+// видео канала из тех же ItemList-блоков, но URL вида /video/watch/<id>.
+// В списке есть только name + image - дату, длительность и описание добираем
+// со страницы видео в enrichVideo (там стабильный VideoObject JSON-LD).
+function extractVideoList(channelHtml) {
+  const byUrl = new Map();
+  for (const match of channelHtml.matchAll(JSON_LD_REGEX)) {
+    let block;
+    try { block = JSON.parse(match[1]); } catch { continue; }
+    if (block?.["@type"] !== "ItemList" || !Array.isArray(block.itemListElement)) continue;
+    for (const raw of block.itemListElement) {
+      const item = raw?.item && typeof raw.item === "object" ? raw.item : raw;
+      const url = item?.url;
+      if (typeof url !== "string" || !/^https:\/\/dzen\.ru\/video\/watch\/[a-f0-9]{24}$/i.test(url)) continue;
+      const existing = byUrl.get(url) ?? {};
+      byUrl.set(url, {
+        url,
+        name: existing.name || item.name || "",
+        image: existing.image || (typeof item.image === "string" ? item.image : item.image?.url) || "",
+      });
+    }
+  }
+  return [...byUrl.values()];
+}
+
+// Дзен отдаёт длительность в усечённом ISO-8601 ("T1M22S" без ведущего P).
+// Парсим терпимо к обоим вариантам, возвращаем секунды или null.
+function parseDurationSeconds(raw) {
+  if (!raw) return null;
+  const m = String(raw).match(/^P?T?(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?$/i);
+  if (!m || !(m[1] || m[2] || m[3])) return null;
+  return (Number(m[1]) || 0) * 3600 + (Number(m[2]) || 0) * 60 + (Number(m[3]) || 0);
+}
+
+function findJsonLd(html, type) {
+  for (const m of html.matchAll(JSON_LD_REGEX)) {
+    let block;
+    try { block = JSON.parse(m[1]); } catch { continue; }
+    for (const b of Array.isArray(block) ? block : [block]) {
+      if (b?.["@type"] === type) return b;
+    }
+  }
+  return null;
+}
+
+async function enrichVideo(url, listImage) {
+  const html = await fetchText(url, OG_UA);
+  const og = parseOgMeta(html);
+  const video = findJsonLd(html, "VideoObject");
+  // VideoObject.name уже чистый, og:title несёт хвост "| КАНАЛ | Дзен" - срезаем
+  const title = (video?.name || og["og:title"] || "")
+    .replace(/\s*\|\s*[^|]*\|\s*Дзен\s*$/iu, "")
+    .trim();
+  const description = stripChannelPrefix(video?.description || og["og:description"] || "");
+  const thumb = Array.isArray(video?.thumbnailUrl) ? video.thumbnailUrl[0] : video?.thumbnailUrl;
+  const image = listImage || thumb || og["og:image"] || null;
+  const publishedAt =
+    video?.uploadDate ||
+    og["article:published_time"] ||
+    objectIdToDate((url.match(/([a-f0-9]{24})/i) || [])[1]);
+  return {
+    url,
+    title,
+    description,
+    image,
+    publishedAt,
+    durationSeconds: parseDurationSeconds(video?.duration),
+  };
+}
+
 async function main() {
   await mkdir(IMAGE_DIR, { recursive: true });
 
@@ -202,6 +272,7 @@ async function main() {
   const channelOg = parseOgMeta(channelHtml);
   const channelTitle = (channelOg["og:title"] || "АГРОФАНАТ").replace(/\s*\|\s*Дзен\s*$/iu, "").trim();
   const items = extractItemList(channelHtml);
+  const videoItems = extractVideoList(channelHtml);
   const briefImageMap = extractBriefImageMap(channelHtml);
 
   if (items.length === 0) {
@@ -259,16 +330,39 @@ async function main() {
     })
   );
 
-  await pruneOldImages(localised.map((p) => p.image).filter((u) => u && u.startsWith(IMAGE_PUBLIC_PREFIX)));
+  // видео: списочные элементы несут только name+image, поэтому обогащаем все
+  // со страницы видео, затем сортируем по дате и берём свежие VIDEOS_LIMIT
+  const enrichedVideos = await Promise.allSettled(
+    videoItems.map((v) => enrichVideo(v.url, v.image))
+  );
+  const videosOk = enrichedVideos
+    .filter((r) => r.status === "fulfilled" && r.value.url && r.value.title)
+    .map((r) => r.value);
+  videosOk.sort((a, b) => (b.publishedAt ?? "").localeCompare(a.publishedAt ?? ""));
+
+  const localisedVideos = await Promise.all(
+    videosOk.slice(0, VIDEOS_LIMIT).map(async (v) => {
+      if (!v.image) return v;
+      const local = await downloadImage(v.image);
+      return local ? { ...v, image: local, remoteImage: v.image } : v;
+    })
+  );
+
+  // прунинг должен сохранить обложки И постов, И видео
+  const keepImages = [...localised, ...localisedVideos]
+    .map((p) => p.image)
+    .filter((u) => u && u.startsWith(IMAGE_PUBLIC_PREFIX));
+  await pruneOldImages(keepImages);
 
   const payload = {
     channel: { id: CHANNEL_ID, slug: CHANNEL_SLUG, title: channelTitle, url: CHANNEL_PUBLIC_URL },
     syncedAt: new Date().toISOString(),
     posts: localised,
+    videos: localisedVideos,
   };
 
   await writeFile(OUTPUT, JSON.stringify(payload, null, 2) + "\n", "utf8");
-  console.log(`[sync-dzen] wrote ${payload.posts.length} posts (latest: ${payload.posts[0].publishedAt})`);
+  console.log(`[sync-dzen] wrote ${payload.posts.length} posts, ${payload.videos.length} videos (latest post: ${payload.posts[0].publishedAt})`);
 }
 
 async function loadPrevious() {
