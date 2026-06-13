@@ -30,6 +30,7 @@ Thumbs.db
 # tooling tmp
 .playwright-mcp/
 .wrangler/
+**/.vercel/
 
 # screenshots from local testing (do not commit)
 *.png

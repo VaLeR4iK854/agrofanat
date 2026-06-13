@@ -1,0 +1,44 @@
+name: Deploy to Vercel
+
+# Сборка и отдача живут на Vercel. GitHub-аккаунт не подключён к Vercel напрямую
+# (приложение Vercel на GitHub не установлено), поэтому деплоим из CI по токену:
+# - на каждый push в main
+# - каждые 6 часов (Vercel пересобирает сайт и подтягивает свежие посты Дзена -
+#   sync:dzen запускается внутри сборки через app/vercel.json)
+# Сборка идёт на стороне Vercel, репозиторий и расписание остаются на GitHub.
+
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: vercel-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_ORG_ID: team_e4p0wFTjG4OdeSs3Iq8F4sQs
+      VERCEL_PROJECT_ID: prj_8SAMNpbYkaniRRxZL7wWEZgHionH
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Deploy to Vercel (production)
+        working-directory: app
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN secret not set yet - skipping."
+            echo "Add it in repo Settings -> Secrets and variables -> Actions."
+            exit 0
+          fi
+          npx --yes vercel@54 deploy --prod --yes --token="$VERCEL_TOKEN"
